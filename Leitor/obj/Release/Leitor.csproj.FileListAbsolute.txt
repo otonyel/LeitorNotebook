@@ -1,0 +1,11 @@
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\bin\Release\Leitor.exe.config
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\bin\Release\Leitor.exe
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\bin\Release\Leitor.pdb
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\bin\Release\DocumentFormat.OpenXml.dll
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\bin\Release\DocumentFormat.OpenXml.xml
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.csproj.AssemblyReference.cache
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.csproj.SuggestedBindingRedirects.cache
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.csproj.CoreCompileInputs.cache
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.csproj.CopyComplete
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.exe
+C:\Users\Otonyel Brandão\Desktop\Otonyel\GitHub\LeitorNotebook\Leitor\obj\Release\Leitor.pdb
