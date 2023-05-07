@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Management;
 
 namespace Leitor
 {
@@ -34,15 +35,42 @@ namespace Leitor
         /// <returns>Retorna uma String com o valor formatado indicando HDD para HD ou SSD para SSD</returns>
         public static string GetTipoDisco()
         {
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.DriveType == DriveType.Fixed && drive.IsReady)
+                ManagementScope scope = new ManagementScope("\\\\.\\root\\cimv2");
+                scope.Connect();
+
+                ObjectQuery query = new ObjectQuery("SELECT MediaType FROM Win32_DiskDrive WHERE MediaType IS NOT NULL");
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+
+                foreach (ManagementObject queryObj in searcher.Get())
                 {
-                    string tipo = drive.DriveFormat.Contains("NTFS") ? "HDD" : "SSD";
-                    return tipo;
+                    string mediaType = queryObj["MediaType"].ToString();
+
+                    if (mediaType == "Fixed hard disk media")
+                    {
+                        string driveLetter = queryObj.Path.RelativePath.Replace("Win32_DiskDrive.DeviceID=\"", "").Replace("\"", "");
+                        ManagementObject partition = new ManagementObject($"win32_LogicalDiskToPartition.DeviceID=\"{driveLetter}0\"");
+
+                        partition.Get();
+
+                        //if (partition["DriveType"].ToString() == "3")
+                        //{
+                        //    string fileSystem = partition["FileSystem"].ToString();
+
+                        //    if (fileSystem.Contains("NTFS"))
+                        //    {
+                        //        if (mediaType.Contains("Solid State"))
+                        //        {
+                        //            return "SSD";
+                        //        }
+                        //        else
+                        //        {
+                        //            return "HDD";
+                        //        }
+                        //    }
+                        //}
+                    }
                 }
-            }
-            return "";
+                return "";
         }
         /// <summary>
         /// Esse Método formata o MAC seguindo o padrã de duas casas dois pontos.

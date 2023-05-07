@@ -22,6 +22,7 @@ namespace Leitor
         {
             App = new Application();
             wb = App.Workbooks.Add();
+            App.DisplayAlerts = false;
             sheet = wb.ActiveSheet;
             sheet.Name = "Informações Computador";   
         }

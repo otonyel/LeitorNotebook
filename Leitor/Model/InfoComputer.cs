@@ -2,6 +2,7 @@
 using System.Management;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Collections.Generic;
 
 namespace Leitor.Model
 {
@@ -140,11 +141,95 @@ namespace Leitor.Model
         /// <returns>Retorna uma string formatado com tipo do disco e quantidade memoria.</returns>
         public string GetHD()
         {
-            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-            var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
-
-            return $"{Util.GetTipoDisco()} - {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
+            try
+            {
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+                var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+                foreach (ManagementObject drive in searcher.Get())
+                {
+                    string driveDeviceID = drive["DeviceID"].ToString();
+                    ManagementObjectSearcher partitionSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{driveDeviceID}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
+                    foreach (ManagementObject partition in partitionSearcher.Get())
+                    {
+                        ManagementObjectSearcher logicalDiskSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["DeviceID"]}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
+                        foreach (ManagementObject logicalDisk in logicalDiskSearcher.Get())
+                        {
+                            string tipo = logicalDisk["MediaType"].ToString().Contains("Fixed hard disk") ? $"HDD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}" : $"SSD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
+                            return tipo;
+                        }
+                    }
+                }
+                return "";
+            }
+            catch (ManagementException ex)
+            {
+                Console.WriteLine("Erro ao obter informações do disco: " + ex.Message);
+                return "";
+            }
+            //    try
+            //    {
+            //        ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDrive");
+            //        foreach (ManagementObject queryObj in searcher.Get())
+            //        {
+            //            Console.WriteLine("-----------------------------------");
+            //            Console.WriteLine("Win32_DiskDrive instance");
+            //            Console.WriteLine("-----------------------------------");
+            //            foreach (PropertyData propertyData in queryObj.Properties)
+            //            {
+            //                if (propertyData.Name.ToUpper().Trim() == "MediaType".ToUpper().Trim() 
+            //                    && propertyData.Value.ToString().ToUpper().Trim() == "Fixed hard disk media".ToUpper().Trim()){
+            //                    Console.WriteLine("É HDD");
+            //                }else if(propertyData.Name.ToUpper().Trim() == "MediaType".ToUpper().Trim()
+            //                    && propertyData.Value.ToString().ToUpper().Trim() == "Removable Media".ToUpper().Trim())
+            //                {
+            //                    Console.WriteLine("É SSD");
+            //                }
+            //                else if((propertyData.Name.ToUpper().Trim() == "Model".ToUpper().Trim()
+            //                    && propertyData.Value.ToString().ToUpper().Trim().Contains("SanDisk".ToUpper().Trim()))||(propertyData.Name.ToUpper().Trim() == "Model".ToUpper().Trim()
+            //                    && propertyData.Value.ToString().ToUpper().Trim().Contains("".ToUpper().Trim())))
+            //                Console.WriteLine("{0}: {1}", propertyData.Name, propertyData.Value);
+            //            }
+            //        }
+            //    }
+            //    catch (ManagementException e)
+            //    {
+            //        Console.WriteLine("Error: " + e.Message);
+            //        return "";
+            //    }
+            //    Console.ReadKey();
+            //    return "";
+            //}
+            //ManagementObjectSearcher sr = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+            //var result = sr.Get().Cast<ManagementObject>().FirstOrDefault();
+            //string query = "SELECT * FROM Win32_DiskDrive";
+            //using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(query))
+            //{
+            //    foreach (ManagementObject drive in searcher.Get())
+            //    {
+            //        Console.WriteLine(drive);
+            //    }
+            //    Console.ReadKey();
+            //foreach (ManagementObject drive in searcher.Get())
+            //{
+            //    Console.WriteLine(drive);
+            //    Console.ReadKey();
+            //    if (drive.Properties["MediaType"].Value.ToString() == "Fixed hard disk media")
+            //    {
+            //        if (drive.Properties["Model"].Value.ToString().Contains("SSD"))
+            //        {
+            //            return $"SSD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
+            //        }
+            //        else
+            //        {
+            //            return $"HDD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
+            //        }
+            //    }
+            //}
+            //}
+            //    return "---";
+            //}
         }
+
         /// <summary>
         /// Esse Método retorna o nome do computador
         /// </summary>
