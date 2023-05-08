@@ -47,7 +47,7 @@ class Program
             //Instanciando um Gerador de arquivo Excel.
             IFileGenerator file = new ExcelGenerator();
             //Criando o Arquivo com as demais informações do Computador.
-            file.Generate(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\ExcelGerado\\Infos.xlsx"), computer);
+            file.Generate(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\ExcelGerado"), computer);
 
             print("  Arquivo Excel gerado com sucesso!!");
             print("\n\n  Aperte Qualquer tecla para finalizar o programa.");

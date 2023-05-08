@@ -1,5 +1,7 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using Leitor.Model;
+using System.IO;
+using System;
 
 namespace Leitor
 {
@@ -85,7 +87,11 @@ namespace Leitor
              */
             try
             {
-                wb.SaveAs(filePath);
+                if (!Directory.Exists(filePath + "\\" + computer.hostName))
+                {
+                    Directory.CreateDirectory(filePath + "\\" + computer.hostName);
+                }
+                wb.SaveAs(filePath+"\\"+ computer.hostName+"\\"+ computer.hostName+".xlsx");
                 wb.Close();
             }
             catch (System.IO.IOException ex)
