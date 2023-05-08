@@ -3,6 +3,7 @@ using System.Management;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Leitor.Model
 {
@@ -143,29 +144,46 @@ namespace Leitor.Model
         {
             try
             {
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-                var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
-                foreach (ManagementObject drive in searcher.Get())
+                var drive = new DriveInfo("C");
+                if (drive.DriveType == DriveType.Fixed)
                 {
-                    string driveDeviceID = drive["DeviceID"].ToString();
-                    ManagementObjectSearcher partitionSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{driveDeviceID}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
-                    foreach (ManagementObject partition in partitionSearcher.Get())
+                    if (drive.DriveFormat.ToLower().Contains("ntfs"))
                     {
-                        ManagementObjectSearcher logicalDiskSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["DeviceID"]}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
-                        foreach (ManagementObject logicalDisk in logicalDiskSearcher.Get())
-                        {
-                            string tipo = logicalDisk["MediaType"].ToString().Contains("Fixed hard disk") ? $"HDD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}" : $"SSD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
-                            return tipo;
-                        }
+                        return "HDD - "+ Util.FormatarTamanhoMemoria(drive.TotalSize);
                     }
+                    return "SSD - "+ Util.FormatarTamanhoMemoria(drive.TotalSize);
                 }
                 return "";
             }
-            catch (ManagementException ex)
+            catch (Exception)
             {
-                Console.WriteLine("Erro ao obter informações do disco: " + ex.Message);
                 return "";
             }
+            //try
+            //{
+            //    ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+            //    var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+            //    foreach (ManagementObject drive in searcher.Get())
+            //    {
+            //        string driveDeviceID = drive["DeviceID"].ToString();
+            //        ManagementObjectSearcher partitionSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskDrive.DeviceID='{driveDeviceID}'}} WHERE AssocClass = Win32_DiskDriveToDiskPartition");
+            //        foreach (ManagementObject partition in partitionSearcher.Get())
+            //        {
+            //            ManagementObjectSearcher logicalDiskSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_DiskPartition.DeviceID='{partition["DeviceID"]}'}} WHERE AssocClass = Win32_LogicalDiskToPartition");
+            //            foreach (ManagementObject logicalDisk in logicalDiskSearcher.Get())
+            //            {
+            //                string tipo = logicalDisk["MediaType"].ToString().Contains("Fixed hard disk") ? $"HDD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}" : $"SSD {Util.FormatarTamanhoMemoria(Convert.ToInt64(result?["Size"]))}";
+            //                return tipo;
+            //            }
+            //        }
+            //    }
+            //    return "";
+            //}
+            //catch (ManagementException ex)
+            //{
+            //    Console.WriteLine("Erro ao obter informações do disco: " + ex.Message);
+            //    return "";
+            //}
             //    try
             //    {
             //        ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDrive");
@@ -271,10 +289,17 @@ namespace Leitor.Model
         /// <returns>Retorna uma String com o Mac do computador já formatado</returns>
         public string GetMacWIFI()
         {
-            var wifi = NetworkInterface
-                        .GetAllNetworkInterfaces()
-                        .FirstOrDefault(x => x.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
-            return Util.FormatarMAC(wifi.GetPhysicalAddress().ToString());
+            try
+            {
+                var wifi = NetworkInterface
+                            .GetAllNetworkInterfaces()
+                            .FirstOrDefault(x => x.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
+                return Util.FormatarMAC(wifi.GetPhysicalAddress().ToString());
+            }
+            catch (NullReferenceException)
+            {
+                return "---";
+            }
         }
         /// <summary>
         /// Esse Método busca e retorna a quantidade de memória RAM no computador.
